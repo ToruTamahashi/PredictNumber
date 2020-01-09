@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block customcss %}
+<style>
+   
+</style>
+{% endblock customcss %}
+
+
+{% block header %}
+
+{% endblock header%}
+
+
+{% block content %}
+<h1>数字予測アプリ</h1>
+{% if answer %}
+<span>たぶんあなたが描いたのは"</span>{{ answer }}<span>"です！！</span>
+{% else %}
+<p>描いた数字(0~9)を予測します</p>
+{% endif %}
+
+<table border="1" width="400" height="400">
+<tbody>
+{% for j in "yyyyyyyyyyyyyyyyyyyyyyyyyyyy" %}
+<tr>
+{% for i in "xxxxxxxxxxxxxxxxxxxxxxxxxxxx" %}
+<td> </td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table> 
+
+<form action="" method="POST" enctype="multipart/form-data" name="form">{% csrf_token %}
+    <!--<p>画像：<input type="file" name="image"></p>-->
+    <input type="hidden" name="img" value="">
+    <input type="submit" id="submit" class="btn btn-primary disabled" tabindex="-1" role="button" value="予測">
+</form>
+
+
+{% endblock content %}
+
+
+{% block js %}
+<script>
+    
+    function checkText() {
+ 
+        //入力ボックスの内容を表示する
+        console.log("aaa")
+        var canvas = document.getElementById("canvas") ;
+        //canvasをjpgに変換する
+        var image_data = canvas.toDataURL("image/jpg");
+        image_data = image_data.replace(/^.*,/, '');
+        var form = document.form;
+        form.image.value = image_data;
+        form.submit();
+    }
+
+    $(function() {
+        $("td").click(function() {
+            // 現在のセルの色が無色透明かを判別
+            if($(this).css("background-color")=="rgba(0, 0, 0, 0)") {
+                // 赤色に染める
+                $(this).css("background-color", "red");
+                $(this).next().css("background-color", "red");
+                $(this).prev().css("background-color", "red");
+                $(this).css("background-color", "red");
+                
+                //セルの行列座標取得
+                //縦
+                var row = $(this).closest('tr').index();
+                //横
+                var col = this.cellIndex;
+                //クリックした座標の一個上
+                $(this).closest('tr').prev().children().eq(col).css("background-color", "red");
+                $(this).closest('tr').prev().children().eq(col-1).css("background-color", "red");
+                $(this).closest('tr').prev().children().eq(col+1).css("background-color", "red");
+                $(this).closest('tr').next().children().eq(col).css("background-color", "red");
+                $(this).closest('tr').next().children().eq(col-1).css("background-color", "red");
+                $(this).closest('tr').next().children().eq(col+1).css("background-color", "red");
+            } else {
+                // 無色透明にする
+                $(this).css("background-color", "");
+            }
+
+            //セルの行列座標取得
+            //縦
+            var row = $(this).closest('tr').index();
+            //横
+            var col = this.cellIndex;
+            console.log('Row: ' + row + ', Column: ' + col);
+        });
+
+        $("#submit").click(function(){
+            var data = [];
+            var tr = $("table tr");//テーブルの全行を取得
+            for( var i=0,l=tr.length;i<l;i++ ){
+                var cells = tr.eq(i).children();//1行目から順番に列を取得(th、td)
+                for( var j=0,m=cells.length;j<m;j++ ){
+                    //console.log(cells.eq(j).css("background-color").toString())
+                    if( typeof data[i] == "undefined" ){
+                        data[i] = [];
+                    }
+                    if(cells.eq(j).css("background-color").toString() == "rgb(255, 0, 0)"){//i行目j列の背景色が赤なら
+                        data[i][j] = 0
+                        //console.log("red")
+                    }else{
+                        data[i][j] = 200
+                    }
+                }
+                           
+            }
+            
+            //console.log(data)
+            var form = document.form;
+            form.img.value = data;
+            form.submit();
+        });
+    }); 
+    
+
+    
+    
+</script>
+{% endblock js %}
